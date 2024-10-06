@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Геймификация</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #gameArea {
+            position: relative;
+            width: 300px;
+            height: 100px;
+            border: 2px solid #000;
+            overflow: hidden;
+        }
+        #pointer {
+            position: absolute;
+            width: 10px;
+            height: 100%;
+            background-color: red;
+            top: 0;
+            z-index: 2; /* Красная полоска выше зеленой зоны */
+        }
+        #targetZone {
+            position: absolute;
+            width: 25px; /* Ширина зеленой зоны */
+            height: 100%;
+            background-color: green;
+            top: 0;
+            z-index: 1; /* Зеленая зона ниже красной полоски */
+        }
+        button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="pointer"></div>
+        <div id="targetZone"></div>
+    </div>
+    <button id="stopButton">Стоп!</button>
+    <script>
+        const pointer = document.getElementById('pointer');
+        const targetZone = document.getElementById('targetZone');
+        const stopButton = document.getElementById('stopButton');
+
+        let position = 0;
+        let direction = 1; // 1 = вправо, -1 = влево
+        let baseSpeed = 11; // Новая минимальная скорость движения
+        let speed = Math.random() * 16 + baseSpeed; // Случайная скорость от 4 до 10
+        let interval;
+
+        // Функция для установки позиции зеленой зоны
+        function setTargetZone() {
+            const center = 150; // Центр полоски
+            const offset = Math.floor(Math.random() * 40) - 20; // Случайное смещение от -20 до 20
+            targetZone.style.left = (center + offset) + 'px'; // Установка новой позиции
+        }
+
+        function movePointer() {
+            position += speed * direction;
+            if (position >= 290 || position <= 0) {
+                direction *= -1; // Меняем направление
+            }
+            pointer.style.left = position + 'px';
+        }
+
+        function startGame() {
+            setTargetZone(); // Установка зеленой зоны при старте
+            interval = setInterval(movePointer, 50);
+        }
+
+        function stopGame() {
+            clearInterval(interval);
+            const center = 150; // Центр полоски
+            const targetPosition = parseInt(targetZone.style.left);
+            const targetDistance = Math.abs(targetPosition - position);
+            
+            // Проверяем, попал ли пользователь в зеленую зону
+            if (targetDistance < 25) { // Допустимое расстояние от центра зеленой зоны
+                alert(`Поздравляю! Вы попали в зеленую зону!`);
+            } else {
+                alert(`Вы остановили указатель на позиции: ${position}px. Расстояние от зеленой зоны: ${targetDistance}px.`);
+            }
+        }
+
+        // Обработчик события для кнопки "Стоп"
+        stopButton.addEventListener('click', stopGame);
+
+        // Обработчик события для клавиши пробел
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                stopGame();
+            }
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
